@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Song } from './songs/entities/song.entity'; // Import the Song entity
+import { Song } from './songs/entities/song.entity';
 import { SongsModule } from './songs/songs.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -21,13 +21,13 @@ import { AppService } from './app.service';
         username: configService.get('DATABASE_USER'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        entities: [Song], // Include the Song entity here
-        synchronize: true, // Note: set to false in production
+        entities: [Song],
+        synchronize: true,
       }),
     }),
-    SongsModule, // Ensure the SongsModule is imported here
+    SongsModule,
   ],
-  controllers: [AppController], // Include AppController in the controllers array
-  providers: [AppService], // Include AppService in the providers array
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
