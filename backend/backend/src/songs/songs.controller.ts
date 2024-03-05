@@ -15,7 +15,7 @@ export class SongsController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const songs = await this.songsService.parseCsv(file.path);
+    const songs = await this.songsService.parseCsv(file.buffer); // Use file.buffer
     await this.songsService.addSongs(songs);
   }
 

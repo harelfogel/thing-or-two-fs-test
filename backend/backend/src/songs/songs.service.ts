@@ -24,21 +24,26 @@ export class SongsService {
    * The use of Promise here is due to the streaming and event-driven nature
    * of file reading and CSV parsing in Node.js.
    *
-   * @param {string} filePath - The path to the CSV file.
+   * @param {string} Bufffer - The path to the CSV file.
    * @returns {Promise<any[]>} - A promise that resolves with the array of transformed data.
    */
-  async parseCsv(filePath: string): Promise<any[]> {
+  async parseCsv(fileBuffer: Buffer): Promise<SongData[]> {
     return new Promise((resolve, reject) => {
-      const songs = [];
-      fs.createReadStream(filePath)
+      const songs: SongData[] = [];
+      const stream = require('stream');
+      const bufferStream = new stream.PassThrough();
+      bufferStream.end(fileBuffer);
+
+      bufferStream
         .pipe(csvParser())
         .on('data', (row) => {
-          const transformedRow = {
-            name: row['Song Name'].toLowerCase(),
-            band: row['Band'].toLowerCase(),
-            year: parseInt(row['Year'], 10),
+          // Map the CSV row to your SongData interface
+          const songData: SongData = {
+            name: row['Song Name'], // Ensure this matches your CSV header for the song name
+            band: row['Band'], // Ensure this matches your CSV header for the band name
+            year: parseInt(row['Year'], 10), // Ensure this matches your CSV header for the year
           };
-          songs.push(transformedRow);
+          songs.push(songData);
         })
         .on('end', () => {
           resolve(songs);
@@ -49,25 +54,19 @@ export class SongsService {
     });
   }
 
-  async addSongs(songsData: SongData[]): Promise<void> {
-    for (const songData of songsData) {
-      const existingSong = await this.songRepository.findOne({
-        where: {
-          name: songData.name,
-          band: songData.band,
-          year: songData.year,
-        },
-      });
+  async clearExistingSongs(): Promise<void> {
+    await this.songRepository.delete({});
+  }
 
-      if (!existingSong) {
-        const newSong = this.songRepository.create(songData);
-        await this.songRepository.save(newSong);
-      } else {
-        // Throw a ConflictException instead of logging
-        throw new ConflictException(
-          `Duplicate song detected: ${songData.name} by ${songData.band}`,
-        );
-      }
+  async addSongs(songsData: SongData[]): Promise<void> {
+    const count = await this.songRepository.count();
+    if (count > 0) {
+      await this.songRepository.clear();
+    }
+
+    for (const songData of songsData) {
+      const newSong = this.songRepository.create(songData);
+      await this.songRepository.save(newSong);
     }
   }
 
