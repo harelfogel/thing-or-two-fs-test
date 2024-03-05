@@ -14,7 +14,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "center", // This ensures children are centered
         justifyContent: "flex-start",
         width: "100%",
         maxWidth: "1200px",

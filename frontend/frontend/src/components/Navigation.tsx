@@ -14,13 +14,12 @@ const Navigation: React.FC = () => {
     >
       <Link
         color="inherit"
-        href="/"
+        href="/songs"
         sx={{ textDecoration: "none", fontWeight: "bold", cursor: "pointer" }}
       >
         Songs
       </Link>
 
-      {/* Other links */}
       <Link
         color="inherit"
         href="/albums"

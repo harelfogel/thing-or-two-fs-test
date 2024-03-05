@@ -2,16 +2,16 @@ import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
-    mode: "dark", // Enable dark mode
+    mode: "dark",
     background: {
-      default: "#221a36", // Use the darker shade as the default background
+      default: "#221a36",
     },
     text: {
-      primary: "#fff", // Light text color for contrast
+      primary: "#fff",
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: ["Poppins", "sans-serif"].join(","),
   },
   components: {
     MuiCssBaseline: {

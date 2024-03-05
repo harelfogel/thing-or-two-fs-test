@@ -14,13 +14,14 @@ interface FileUploadModalProps {
 
 const style = {
   position: "absolute",
-  top: "50%",
+  top: "30%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: 500,
+  height: 300,
   bgcolor: "background.paper",
   boxShadow: 24,
-  p: 4,
+  p: 10,
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -45,24 +46,22 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
   });
 
   const handleFileDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      // Explicitly type the event parameter
+    async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       setIsUploading(true);
       const files = e.dataTransfer.files;
       if (files.length > 0) {
         const file = files[0];
         if (file.type === acceptedFileType) {
-          onFileUpload(file)
-            .then(() => {
-              setIsUploading(false);
-              handleClose();
-            })
-            .catch((error) => {
-              console.error(error);
-              alert("Upload failed.");
-              setIsUploading(false);
-            });
+          try {
+            await onFileUpload(file);
+            setIsUploading(false);
+            handleClose();
+          } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Upload failed.");
+            setIsUploading(false);
+          }
         } else {
           alert(`Please upload a file of type: ${acceptedFileType}.`);
           setIsUploading(false);

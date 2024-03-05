@@ -9,9 +9,11 @@ const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppLayout>
-        <MainContent />
-      </AppLayout>
+      <div className="App">
+        <AppLayout>
+          <MainContent />
+        </AppLayout>
+      </div>
     </ThemeProvider>
   );
 };

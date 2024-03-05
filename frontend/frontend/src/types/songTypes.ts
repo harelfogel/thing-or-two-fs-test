@@ -1,4 +1,3 @@
-// src/types/songTypes.ts
 export interface Song {
   id: number;
   name: string;
