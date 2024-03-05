@@ -1,14 +1,19 @@
-// MainContent.tsx
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import ControlPanel from "./ControlPanel";
 import DataTable from "./DataTable";
 import FileUploadModal from "./FileUploadModal";
-import { songColumns } from "../utils/constants/songColumns";
+import { songColumns } from "../types/songColumns";
 import SearchContainer from "./SearchContainer";
-import { fetchSongs } from "../services/songService";
+import {
+  clearAllSongs,
+  fetchSongs,
+  onFileUpload,
+} from "../services/songService";
 import { sortSongs } from "../utils/util";
 import { Song } from "../types/songTypes";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MainContent: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -42,28 +47,24 @@ const MainContent: React.FC = () => {
     setSortBy(sortBy);
   };
 
-  const onFileUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
+  const handleClearAll = async () => {
     try {
-      const response = await fetch("http://localhost:3000/songs/upload", {
-        method: "POST",
-        body: formData,
-      });
+      await clearAllSongs();
+      setSongs([]);
+    } catch (error) {
+      console.error("Clear error:", error);
+      toast.error("Failed to clear songs.");
+    }
+  };
 
-      if (response.status === 409) {
-        // Handle the conflict, e.g., by informing the user
-        alert("The song you're trying to upload already exists.");
-      } else if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      // Fetch the updated songs list and update the state
-      const updatedSongs = await fetchSongs();
-      setSongs(updatedSongs); // Now this should be uncommented to update the state
+  const handleFileUpload = async (file: File) => {
+    try {
+      const updatedSongs = await onFileUpload(file);
+      setSongs(updatedSongs);
+      toast.success("File uploaded successfully!");
     } catch (error) {
       console.error("Upload error:", error);
+      toast.error("Upload failed. Please ensure the file is a valid CSV.");
     }
   };
 
@@ -75,6 +76,7 @@ const MainContent: React.FC = () => {
           onImportClick={handleOpenModal}
           onSearch={handleSearch}
           onSort={handleSort}
+          onClearAll={handleClearAll} // Pass handleClearAll as a prop
         />
         <SearchContainer
           searchTerm={searchTerm}
@@ -85,7 +87,7 @@ const MainContent: React.FC = () => {
         <FileUploadModal
           open={isModalOpen}
           handleClose={handleCloseModal}
-          onFileUpload={onFileUpload}
+          onFileUpload={handleFileUpload}
         />
       </Box>
     </Box>

@@ -1,4 +1,4 @@
-import { Column } from "../../types/commonTypes";
+import { Column } from "./commonTypes";
 
 export const songColumns: Column[] = [
   { id: "name", label: "Song Name", minWidth: 150 },

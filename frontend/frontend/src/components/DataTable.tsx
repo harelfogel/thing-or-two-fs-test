@@ -50,20 +50,28 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((row) => (
-              <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                {columns.map((column) => {
-                  const value = row[column.id as keyof Song];
-                  return (
-                    <TableCell key={column.id} align={column.align}>
-                      {value}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
+          {data.length > 0 ? (
+            data
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                  {columns.map((column) => {
+                    const value = row[column.id as keyof Song];
+                    return (
+                      <TableCell key={column.id} align={column.align}>
+                        {value}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} align="center">
+                No songs found
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
         <TableFooter>
           <TableRow>

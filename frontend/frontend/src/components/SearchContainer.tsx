@@ -1,6 +1,5 @@
-// SearchSuggestions.tsx
 import React from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography, Paper } from "@mui/material";
 import { Song } from "../types/songTypes";
 
 interface SearchContainerProps {
@@ -14,32 +13,42 @@ const SearchContainer: React.FC<SearchContainerProps> = ({
   isLoading,
   songs,
 }) => {
-  if (isLoading) {
+  if (isLoading || searchTerm) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (searchTerm) {
-    const filteredSongs = songs.filter(
-      (song) =>
-        song.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        song.band.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (filteredSongs.length === 0) {
-      return <Typography>No songs or bands found...</Typography>;
-    }
-
-    return (
-      <Box>
-        {filteredSongs.map((song) => (
-          <Typography
-            key={song.id}
-          >{`${song.name} by ${song.band}`}</Typography>
-        ))}
+      <Box sx={{ marginY: 2 }}>
+        <Paper sx={{ padding: 1 }}>
+          {" "}
+          {/* Set background color to white */}
+          {isLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box>
+              {songs.filter(
+                (song) =>
+                  song.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  song.band.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length > 0 ? (
+                songs
+                  .filter(
+                    (song) =>
+                      song.name
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                      song.band.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((song) => (
+                    <Typography
+                      key={song.id}
+                    >{`${song.name} by ${song.band}`}</Typography>
+                  ))
+              ) : (
+                <Typography>No songs or bands found...</Typography>
+              )}
+            </Box>
+          )}
+        </Paper>
       </Box>
     );
   }

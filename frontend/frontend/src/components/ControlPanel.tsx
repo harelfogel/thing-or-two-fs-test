@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import SearchIcon from "@mui/icons-material/Search";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 import SortIcon from "@mui/icons-material/Sort";
 import { Menu, MenuItem } from "@mui/material";
 
@@ -12,12 +13,14 @@ interface ControlPanelProps {
   onImportClick: () => void;
   onSearch: (searchTerm: string) => void;
   onSort: (sortBy: string) => void;
+  onClearAll?: () => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
   onImportClick,
   onSearch,
   onSort,
+  onClearAll,
 }) => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onSearch(event.target.value);
@@ -87,6 +90,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         <MenuItem onClick={() => handleSort("band")}>By Band</MenuItem>
         <MenuItem onClick={() => handleSort("year")}>By Year</MenuItem>
       </Menu>
+      {onClearAll && (
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<DeleteIcon />}
+          onClick={onClearAll}
+        >
+          Clear
+        </Button>
+      )}
     </Box>
   );
 };
