@@ -1,6 +1,12 @@
-// Navigation.tsx
 import React from "react";
 import { Box, Link } from "@mui/material";
+
+const linkStyles = {
+  textDecoration: "none",
+  fontWeight: "bold",
+  cursor: "pointer",
+  "&:hover": { textDecoration: "underline" },
+};
 
 const Navigation: React.FC = () => {
   return (
@@ -12,46 +18,17 @@ const Navigation: React.FC = () => {
         margin: 5,
       }}
     >
-      <Link
-        color="inherit"
-        href="/songs"
-        sx={{ textDecoration: "none", fontWeight: "bold", cursor: "pointer" }}
-      >
+      <Link href="/songs" sx={linkStyles}>
         Songs
       </Link>
-
-      <Link
-        color="inherit"
-        href="/albums"
-        sx={{
-          textDecoration: "none",
-          "&:hover": { textDecoration: "underline" },
-          cursor: "pointer",
-        }}
-      >
+      <Link href="/albums" sx={linkStyles}>
         Albums
       </Link>
-      <Link
-        color="inherit"
-        href="/artists"
-        sx={{
-          textDecoration: "none",
-          "&:hover": { textDecoration: "underline" },
-          cursor: "pointer",
-        }}
-      >
-        Artist
+      <Link href="/artists" sx={linkStyles}>
+        Artists
       </Link>
-      <Link
-        color="inherit"
-        href="/podcasts"
-        sx={{
-          textDecoration: "none",
-          "&:hover": { textDecoration: "underline" },
-          cursor: "pointer",
-        }}
-      >
-        Podcast
+      <Link href="/podcasts" sx={linkStyles}>
+        Podcasts
       </Link>
     </Box>
   );

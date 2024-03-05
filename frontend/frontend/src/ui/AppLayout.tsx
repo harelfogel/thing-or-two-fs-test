@@ -1,4 +1,3 @@
-// src/ui/AppLayout.tsx
 import React from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -12,31 +11,34 @@ interface AppLayoutProps {
   isDarkMode: boolean;
 }
 
+const layoutStyles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "100%",
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: 8,
+    position: "relative",
+  },
+  darkModeToggle: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+  },
+};
+
 const AppLayout: React.FC<AppLayoutProps> = ({
   children,
   toggleDarkMode,
   isDarkMode,
 }) => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        width: "100%",
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: 8,
-        position: "relative",
-      }}
-    >
+    <Box sx={layoutStyles.container}>
       <IconButton
-        sx={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-        }}
+        sx={layoutStyles.darkModeToggle}
         onClick={toggleDarkMode}
         color="inherit"
       >

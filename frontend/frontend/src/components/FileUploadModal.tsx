@@ -1,31 +1,37 @@
-import React, { useState, useCallback } from "react";
-import { Modal, Box, Typography, CircularProgress } from "@mui/material";
+import React, { useState, useCallback, useRef } from "react";
+import {
+  Modal,
+  Box,
+  Typography,
+  CircularProgress,
+  Button,
+} from "@mui/material";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ErrorIcon from "@mui/icons-material/Error";
 import { useSpring, animated } from "react-spring";
 import { toast } from "react-toastify";
+import {
+  ACCEPTED_FILE_TYPE,
+  UPLOAD_MESSAGE,
+  DROP_MESSAGE,
+  MODAL_STYLE,
+} from "../utils/constants/modalConfig";
 
 interface FileUploadModalProps {
   open: boolean;
   handleClose: () => void;
-  acceptedFileType?: string;
   onFileUpload: (file: File) => Promise<void>;
-  uploadMessage?: string;
-  dropMessage?: string;
 }
 
 const FileUploadModal: React.FC<FileUploadModalProps> = ({
   open,
   handleClose,
-  acceptedFileType = "text/csv",
   onFileUpload,
-  uploadMessage = "Uploading...",
-  dropMessage = "Drag and drop a file here",
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isInvalidFile, setIsInvalidFile] = useState(false);
-
+  const [hasError, setHasError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const animation = useSpring({
     from: { transform: "translateY(0px)" },
     to: { transform: "translateY(-20px)" },
@@ -33,112 +39,103 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
     config: { duration: 500 },
   });
 
-  const handleFileDrop = useCallback(
+  const handleFileProcess = async (file: File) => {
+    setHasError(false); // Reset error state before processing
+    if (file.type !== ACCEPTED_FILE_TYPE) {
+      toast.error(`Please upload a file of type: ${ACCEPTED_FILE_TYPE}.`);
+      setHasError(true); // Set error state
+      return;
+    }
+    setIsUploading(true);
+    try {
+      await onFileUpload(file);
+      toast.success("File uploaded successfully!");
+      handleClose();
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        `Upload failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+      setHasError(true); // Set error state
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const onFileInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.files && event.target.files.length > 0) {
+      await handleFileProcess(event.target.files[0]);
+    }
+  };
+
+  const onBrowseFiles = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onModalDrop = useCallback(
     async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
-      setIsUploading(true);
       setIsDragOver(false);
       const files = e.dataTransfer.files;
       if (files.length > 0) {
-        const file = files[0];
-        if (file.type === acceptedFileType) {
-          try {
-            await onFileUpload(file);
-            setIsUploading(false);
-            handleClose();
-            toast.success("File uploaded successfully!");
-          } catch (error) {
-            if (error instanceof Error) {
-              console.error("Upload error:", error);
-              toast.error(`Upload failed: ${error.message}`);
-            } else {
-              console.error("Upload error:", error);
-              toast.error("Upload failed.");
-            }
-            setIsUploading(false);
-          }
-        } else {
-          toast.error(`Please upload a file of type: ${acceptedFileType}.`);
-          setIsUploading(false);
-        }
+        await handleFileProcess(files[0]);
       }
     },
-    [acceptedFileType, onFileUpload, handleClose]
+    [handleFileProcess]
   );
 
-  const handleDragOver = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragOver(true);
-
-      const files = e.dataTransfer.items;
-      if (files && files.length > 0) {
-        const fileType = files[0].type;
-        setIsInvalidFile(fileType !== acceptedFileType);
-      }
-    },
-    [acceptedFileType]
-  );
-
-  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+  const onModalDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragOver(false);
-    setIsInvalidFile(false);
+    setIsDragOver(true);
   }, []);
 
-  const style = {
-    position: "absolute",
-    top: "30%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 500,
-    height: 300,
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    p: 10,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 2,
-    opacity: isDragOver ? 0.7 : 1,
-    backgroundColor: isDragOver ? "#e0e0e0" : "background.paper",
-  };
+  const onModalDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
 
   return (
     <Modal
       open={open}
       onClose={handleClose}
       aria-labelledby="file-upload-modal-title"
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
+      onDragOver={onModalDragOver}
+      onDragLeave={onModalDragLeave}
     >
       <Box
-        sx={style}
-        onDrop={handleFileDrop}
-        onDragOver={(e) => e.preventDefault()}
+        sx={{ ...MODAL_STYLE, opacity: isDragOver ? 0.7 : 1 }}
+        onDrop={onModalDrop}
       >
+        <input
+          ref={fileInputRef}
+          type="file"
+          hidden
+          onChange={onFileInputChange}
+          accept={ACCEPTED_FILE_TYPE}
+        />
         {isUploading ? (
           <>
             <CircularProgress />
-            <Typography>{uploadMessage}</Typography>
+            <Typography>{UPLOAD_MESSAGE}</Typography>
           </>
-        ) : isInvalidFile ? (
+        ) : hasError ? ( // Check if there is an error
           <>
             <ErrorIcon color="error" sx={{ fontSize: 60 }} />
-            <Typography color="error">Invalid file type!</Typography>
+            <Typography color="error">File upload failed!</Typography>
           </>
         ) : (
           <>
             <animated.div style={animation}>
               <FileUploadIcon sx={{ fontSize: 60 }} />
             </animated.div>
-            <Typography
-              id="file-upload-modal-title"
-              variant="h6"
-              component="h2"
-            >
-              {dropMessage}
-            </Typography>
+            <Typography variant="h6">{DROP_MESSAGE}</Typography>
+            <Button variant="contained" onClick={onBrowseFiles}>
+              Browse Files
+            </Button>
           </>
         )}
       </Box>

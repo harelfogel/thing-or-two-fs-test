@@ -9,6 +9,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SortIcon from "@mui/icons-material/Sort";
 import { Menu, MenuItem } from "@mui/material";
 
+const sortOptions = [
+  { value: "name", label: "By Name" },
+  { value: "band", label: "By Band" },
+  { value: "year", label: "By Year" },
+];
+
 interface ControlPanelProps {
   onImportClick: () => void;
   onSearch: (searchTerm: string) => void;
@@ -22,49 +28,35 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onSort,
   onClearAll,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onSearch(event.target.value);
   };
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget); // Open the menu
+    setAnchorEl(event.currentTarget);
   };
 
   const handleSortClose = () => {
     setAnchorEl(null);
   };
 
-  const handleSort = (sortBy: string) => {
-    onSort(sortBy);
-    handleSortClose();
-  };
-
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 2,
-        margin: "auto",
-        padding: 4,
-      }}
-    >
+    <Box sx={styles.container}>
       <Button variant="contained" color="success" startIcon={<PlayArrowIcon />}>
         Play
       </Button>
+
       <TextField
         variant="outlined"
         placeholder="Search..."
         size="small"
         onChange={handleSearchChange}
-        InputProps={{
-          startAdornment: <SearchIcon />,
-        }}
-        sx={{ flexGrow: 1 }}
+        InputProps={{ startAdornment: <SearchIcon /> }}
+        sx={styles.searchField}
       />
+
       <Button
         variant="contained"
         color="primary"
@@ -73,6 +65,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       >
         Import
       </Button>
+
       <Button
         variant="contained"
         color="primary"
@@ -81,15 +74,25 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       >
         Filter
       </Button>
+
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleSortClose}
       >
-        <MenuItem onClick={() => handleSort("name")}>By Name</MenuItem>
-        <MenuItem onClick={() => handleSort("band")}>By Band</MenuItem>
-        <MenuItem onClick={() => handleSort("year")}>By Year</MenuItem>
+        {sortOptions.map((option) => (
+          <MenuItem
+            key={option.value}
+            onClick={() => {
+              onSort(option.value);
+              handleSortClose();
+            }}
+          >
+            {option.label}
+          </MenuItem>
+        ))}
       </Menu>
+
       {onClearAll && (
         <Button
           variant="contained"
@@ -102,6 +105,20 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       )}
     </Box>
   );
+};
+
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 2,
+    margin: "auto",
+    padding: 4,
+  },
+  searchField: {
+    flexGrow: 1,
+  },
 };
 
 export default ControlPanel;

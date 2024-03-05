@@ -76,7 +76,7 @@ const MainContent: React.FC = () => {
           onImportClick={handleOpenModal}
           onSearch={handleSearch}
           onSort={handleSort}
-          onClearAll={handleClearAll} // Pass handleClearAll as a prop
+          onClearAll={handleClearAll}
         />
         <SearchContainer
           searchTerm={searchTerm}
