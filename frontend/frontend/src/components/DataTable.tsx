@@ -61,7 +61,7 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
           ) : (
             data
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => (
+              .map((row) => (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {columns.map(({ id, align }) => {
                     const value = row[id as keyof Song];
