@@ -1,5 +1,4 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import * as fs from 'fs';
 import * as csvParser from 'csv-parser';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -24,7 +23,7 @@ export class SongsService {
    * The use of Promise here is due to the streaming and event-driven nature
    * of file reading and CSV parsing in Node.js.
    *
-   * @param {string} Bufffer - The path to the CSV file.
+   * @param {string} Buffer - The path to the CSV file.
    * @returns {Promise<any[]>} - A promise that resolves with the array of transformed data.
    */
   async parseCsv(fileBuffer: Buffer): Promise<SongData[]> {
@@ -59,19 +58,32 @@ export class SongsService {
   }
 
   async addSongs(songsData: SongData[]): Promise<void> {
-    const count = await this.songRepository.count();
-    if (count > 0) {
-      await this.songRepository.clear();
-    }
-
     for (const songData of songsData) {
-      const newSong = this.songRepository.create(songData);
-      await this.songRepository.save(newSong);
+      const existingSong = await this.songRepository.findOne({
+        where: {
+          name: songData.name,
+          band: songData.band,
+        },
+      });
+
+      if (!existingSong) {
+        const newSong = this.songRepository.create(songData);
+        try {
+          await this.songRepository.save(newSong);
+        } catch (error) {
+          // You can throw a more specific error based on the error type
+          throw new ConflictException(`Failed to save song: ${error.message}`);
+        }
+      }
     }
   }
 
   async getAllSongs(): Promise<Song[]> {
     const songs = await this.songRepository.find();
     return songs;
+  }
+
+  async clearAllSongs(): Promise<void> {
+    await this.songRepository.clear();
   }
 }

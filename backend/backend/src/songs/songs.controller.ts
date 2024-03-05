@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,17 +16,17 @@ export class SongsController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const songs = await this.songsService.parseCsv(file.buffer); // Use file.buffer
+    const songs = await this.songsService.parseCsv(file.buffer);
     await this.songsService.addSongs(songs);
-  }
-
-  @Get('test') // New GET route for testing
-  testServer() {
-    return 'The server is up and running!';
   }
 
   @Get()
   async getAllSongs() {
     return await this.songsService.getAllSongs();
+  }
+
+  @Delete()
+  async clearSongs() {
+    return await this.songsService.clearAllSongs();
   }
 }
