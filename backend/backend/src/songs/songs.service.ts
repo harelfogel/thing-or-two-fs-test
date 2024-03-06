@@ -3,17 +3,13 @@ import {
   ConflictException,
   InternalServerErrorException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import * as csvParser from 'csv-parser';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Song } from './entities/song.entity';
-
-interface SongData {
-  name: string;
-  band: string;
-  year: number;
-}
+import { SongData } from './songs.dto';
 
 /**
  * Service responsible for handling song data operations, including parsing CSV files,
@@ -118,5 +114,46 @@ export class SongsService {
    */
   async clearAllSongs(): Promise<void> {
     await this.songRepository.clear();
+  }
+
+  /**
+   * Deletes a song by its ID from the database.
+   * @param id - The ID of the song to be deleted.
+   */
+  async deleteSong(id: number): Promise<void> {
+    const result = await this.songRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Song with ID "${id}" not found.`);
+    }
+  }
+
+  async addNewSong(createSongDto: SongData): Promise<Song> {
+    const existingSong = await this.songRepository.findOne({
+      where: {
+        name: createSongDto.name,
+        band: createSongDto.band,
+      },
+    });
+
+    if (existingSong) {
+      throw new ConflictException('This song already exists in the database.');
+    }
+
+    // Additional validation can go here (e.g., year range, non-empty strings)
+    if (
+      createSongDto.year < 1900 ||
+      createSongDto.year > new Date().getFullYear()
+    ) {
+      throw new BadRequestException(
+        'Year must be between 1900 and the current year.',
+      );
+    }
+
+    if (!createSongDto.name || !createSongDto.band) {
+      throw new BadRequestException('Name and band must not be empty.');
+    }
+
+    const newSong = this.songRepository.create(createSongDto);
+    return this.songRepository.save(newSong);
   }
 }
