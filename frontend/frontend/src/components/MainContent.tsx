@@ -10,7 +10,7 @@ import {
   onFileUpload,
   clearAllSongs,
 } from "../services/songService";
-import { useSongsContext } from "../contexts/SongsContext"; // Import the context hook
+import { useSongsContext } from "../contexts/SongsContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

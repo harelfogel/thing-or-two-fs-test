@@ -8,7 +8,7 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SortIcon from "@mui/icons-material/Sort";
 import { Menu, MenuItem } from "@mui/material";
-import { useSongsContext } from "../contexts/SongsContext"; // Import the context hook
+import { useSongsContext } from "../contexts/SongsContext";
 
 const sortOptions = [
   { value: "name", label: "By Name" },
@@ -31,7 +31,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   const { dispatch } = useSongsContext();
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value); // Update the search term in the parent component
+    setSearchTerm(event.target.value);
   };
 
   const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {

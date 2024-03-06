@@ -40,7 +40,7 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
   const [newSong, setNewSong] = useState({
     name: "",
     band: "",
-    year: new Date().getFullYear().toString(), // Convert year to string
+    year: new Date().getFullYear().toString(),
   });
 
   const displayData = isAdding ? [{ id: "new", ...newSong }, ...data] : data;
