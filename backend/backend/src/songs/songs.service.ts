@@ -139,7 +139,6 @@ export class SongsService {
       throw new ConflictException('This song already exists in the database.');
     }
 
-    // Additional validation can go here (e.g., year range, non-empty strings)
     if (
       createSongDto.year < 1900 ||
       createSongDto.year > new Date().getFullYear()
