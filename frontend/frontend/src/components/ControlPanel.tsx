@@ -8,6 +8,7 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SortIcon from "@mui/icons-material/Sort";
 import { Menu, MenuItem } from "@mui/material";
+import { useSongsContext } from "../contexts/SongsContext"; // Import the context hook
 
 const sortOptions = [
   { value: "name", label: "By Name" },
@@ -17,29 +18,33 @@ const sortOptions = [
 
 interface ControlPanelProps {
   onImportClick: () => void;
-  onSearch: (searchTerm: string) => void;
-  onSort: (sortBy: string) => void;
-  onClearAll?: () => void;
+  setSearchTerm: (searchTerm: string) => void;
+  onClearAll: () => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
   onImportClick,
-  onSearch,
-  onSort,
+  setSearchTerm,
   onClearAll,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { dispatch } = useSongsContext();
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch(event.target.value);
+    setSearchTerm(event.target.value); // Update the search term in the parent component
   };
 
   const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleSortClose = () => {
+  const handleSort = (sortBy: string) => {
+    dispatch({ type: "SORT_SONGS", payload: sortBy }); // Dispatch sort action
     setAnchorEl(null);
+  };
+
+  const handleClearAll = () => {
+    dispatch({ type: "REMOVE_ALL_SONGS" });
   };
 
   return (
@@ -72,37 +77,29 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         startIcon={<SortIcon />}
         onClick={handleSortClick}
       >
-        Filter
+        Sort
       </Button>
 
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={handleSortClose}
+        onClose={() => setAnchorEl(null)}
       >
         {sortOptions.map((option) => (
-          <MenuItem
-            key={option.value}
-            onClick={() => {
-              onSort(option.value);
-              handleSortClose();
-            }}
-          >
+          <MenuItem key={option.value} onClick={() => handleSort(option.value)}>
             {option.label}
           </MenuItem>
         ))}
       </Menu>
 
-      {onClearAll && (
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<DeleteIcon />}
-          onClick={onClearAll}
-        >
-          Clear
-        </Button>
-      )}
+      <Button
+        variant="contained"
+        color="secondary"
+        startIcon={<DeleteIcon />}
+        onClick={onClearAll}
+      >
+        Clear
+      </Button>
     </Box>
   );
 };
